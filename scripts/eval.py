@@ -22,7 +22,6 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PACKAGES_DIR = PROJECT_ROOT / "packages"
-DB_PATH = PROJECT_ROOT / "data" / "orpha.sqlite"
 
 if not PACKAGES_DIR.exists():
     print(
@@ -256,12 +255,6 @@ def main() -> None:
         help="Print top-3 candidates for each case",
     )
     parser.add_argument(
-        "--db",
-        type=str,
-        default=str(DB_PATH),
-        help=f"Path to orpha.sqlite (default: {DB_PATH})",
-    )
-    parser.add_argument(
         "--json",
         dest="output_json",
         action="store_true",
@@ -270,18 +263,9 @@ def main() -> None:
     args = parser.parse_args()
 
     # Load index
-    db = args.db
-    if not Path(db).exists():
-        print(
-            f"ERROR: Database not found at {db}\n"
-            "       Run the ingest pipeline first: uv run python -m ingest.pipeline",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    print(f"Loading scoring index from {db} ...", end=" ", flush=True)
+    print(f"Loading scoring index from Supabase ...", end=" ", flush=True)
     t0 = time.perf_counter()
-    index = ScoringIndex.load(db)
+    index = ScoringIndex.load()
     elapsed_load = time.perf_counter() - t0
     print(f"done ({elapsed_load:.2f}s)")
 

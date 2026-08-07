@@ -82,7 +82,7 @@ class ScoringIndex:
 
     @classmethod
     def load(cls, db_path=None) -> ScoringIndex:
-        engine = get_engine(db_path) if db_path else get_engine()
+        engine = get_engine()
 
         with Session(engine) as session:
             ic: dict[str, float] = {}

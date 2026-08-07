@@ -3,63 +3,22 @@ from pathlib import Path
 
 from sqlmodel import SQLModel, create_engine
 
-
-def _resolve_app_db_path() -> Path:
-    url = os.environ.get("LUMINA_APP_DATABASE_URL", "")
-    if url.startswith("sqlite:///"):
-        return Path(url.removeprefix("sqlite:///"))
-    for candidate in [
-        Path.cwd() / "data" / "lumina_app.sqlite",
-        Path.cwd() / ".." / ".." / "data" / "lumina_app.sqlite",
-        Path.cwd() / ".." / "data" / "lumina_app.sqlite",
-    ]:
-        if candidate.parent.exists():
-            return candidate.resolve()
-    return Path(__file__).parent.parent.parent.parent / "data" / "lumina_app.sqlite"
-
-
-APP_DB_PATH = _resolve_app_db_path()
-APP_DATA_DIR = APP_DB_PATH.parent
+APP_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data"
 UPLOAD_DIR = APP_DATA_DIR / "uploads" / "submissions"
-
 
 def get_app_engine():
     url = os.environ.get("LUMINA_APP_DATABASE_URL", "") or os.environ.get("DATABASE_URL", "")
-    if url.startswith("postgresql://") or url.startswith("postgres://") or url.startswith("postgresql+"):
-        if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql://", 1)
-        return create_engine(url, echo=False)
-    APP_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    if not url:
+        raise ValueError("DATABASE_URL environment variable is not set. Cannot connect to Supabase.")
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+    
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    return create_engine(f"sqlite:///{APP_DB_PATH}", echo=False)
-
-
-def _ensure_patient_submission_columns(engine) -> None:
-    if engine.dialect.name != "sqlite":
-        return
-    missing_columns = {
-        "patient_summary_json": "TEXT",
-        "released_letter_markdown": "TEXT",
-        "released_case_id": "VARCHAR",
-        "release_timestamp": "INTEGER",
-        "visit_recommendation": "VARCHAR",
-    }
-    with engine.begin() as conn:
-        existing = {
-            row[1]
-            for row in conn.exec_driver_sql("PRAGMA table_info(app_patient_submission)").all()
-        }
-        for column, sql_type in missing_columns.items():
-            if column not in existing:
-                conn.exec_driver_sql(
-                    f"ALTER TABLE app_patient_submission ADD COLUMN {column} {sql_type}"
-                )
-
+    return create_engine(url, echo=False)
 
 def init_app_db():
     from api import app_models  # noqa: F401
 
     engine = get_app_engine()
     SQLModel.metadata.create_all(engine)
-    _ensure_patient_submission_columns(engine)
     return engine

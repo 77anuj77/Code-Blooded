@@ -14,9 +14,6 @@ from scoring.similarity import jaccard, lin, resnik
 
 @pytest.fixture(scope="module")
 def index():
-    from ingest.db import DB_PATH
-    if not DB_PATH.exists():
-        pytest.skip("orpha.sqlite not found — run ingest first")
     return ScoringIndex.load()
 
 
