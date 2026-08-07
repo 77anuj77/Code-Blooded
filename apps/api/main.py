@@ -3,7 +3,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+# Load the monorepo root .env first (legacy/shared location), then apps/api/.env
+# on top of it with override=True — apps/api/.env is what the README documents,
+# so it should win if both are present and disagree.
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
+load_dotenv(Path(__file__).parent / ".env", override=True)
 
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
