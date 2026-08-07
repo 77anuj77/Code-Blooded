@@ -33,7 +33,20 @@
     "deleteConfirm": "¿Eliminar este envío y sus datos de derivación vinculados?",
     "deleteSuccess": "Envío eliminado.",
     "deleteFailed": "No se pudo eliminar el envío.",
-    "loadFailed": "No se pudieron cargar los envíos."
+    "loadFailed": "No se pudieron cargar los envíos.",
+    "historyRequestsTitle": "History sharing requests",
+    "historyRequestsDesc": "A doctor is requesting access to your prior diagnosis history so you don't have to re-explain it.",
+    "historyRequestApprove": "Approve",
+    "historyRequestDeny": "Deny",
+    "historyRequestApproved": "Access approved",
+    "historyRequestDenied": "Access denied"
+  },
+  "patientHistory": {
+    "title": "Patient history",
+    "pending": "Waiting on patient approval to view prior history.",
+    "empty": "No prior doctor-completed history for this patient.",
+    "timelineTitle": "Prior cases",
+    "loadFailed": "Could not load patient history."
   },
   "patientNewSubmission": {
     "title": "Envío del paciente",

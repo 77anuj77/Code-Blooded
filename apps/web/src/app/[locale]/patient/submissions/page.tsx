@@ -7,13 +7,16 @@ import { toast } from "sonner";
 import { DashboardNav } from "@/components/nav";
 import { RoleGuard } from "@/components/lumina/role-guard";
 import {
+  approveConsentRequestRemote,
   deletePatientSubmissionFromStorage,
   deletePatientSubmissionRemote,
+  denyConsentRequestRemote,
+  getConsentRequestsRemote,
   getPatientSubmissions,
   getPatientSubmissionsRemote,
 } from "@/lib/api";
 import { useApiActor } from "@/lib/use-api-actor";
-import type { PatientSubmission } from "@/types/lumina";
+import type { ConsentRequest, PatientSubmission } from "@/types/lumina";
 import { Plus, Inbox, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +37,25 @@ export default function PatientSubmissionsPage() {
       })
       .finally(() => setLoading(false));
   }, [actor]);
+
+  const [consentRequests, setConsentRequests] = useState<ConsentRequest[]>([]);
+  useEffect(() => {
+    if (!actor) return;
+    getConsentRequestsRemote(actor).then(setConsentRequests).catch(() => {});
+  }, [actor]);
+
+  async function handleConsentDecision(id: string, approve: boolean) {
+    if (!actor) return;
+    try {
+      const updated = approve
+        ? await approveConsentRequestRemote(id, actor)
+        : await denyConsentRequestRemote(id, actor);
+      setConsentRequests((current) => current.filter((item) => item.id !== updated.id));
+      toast.success(approve ? t("historyRequestApproved") : t("historyRequestDenied"));
+    } catch {
+      toast.error(t("loadFailed"));
+    }
+  }
 
   function statusBadge(status: string) {
     if (status === "released_to_patient") {
@@ -65,6 +87,35 @@ export default function PatientSubmissionsPage() {
       <div className="min-h-screen bg-[#F7F8FA] text-[#0D1B2A]">
         <DashboardNav />
         <main className="mx-auto max-w-[1200px] px-6 pb-24 pt-28">
+          {consentRequests.length > 0 && (
+            <div className="mb-6 rounded border border-[#DDE3ED] bg-white p-5">
+              <p className="text-[14px] font-normal text-[#0D1B2A]">{t("historyRequestsTitle")}</p>
+              <p className="mt-1 text-[13px] text-[#4A5568]">{t("historyRequestsDesc")}</p>
+              <div className="mt-3 space-y-2">
+                {consentRequests.map((req) => (
+                  <div key={req.id} className="flex items-center justify-between rounded border border-[#F0F2F5] bg-[#F7F8FA] px-4 py-2.5">
+                    <span className="text-[13px] text-[#0D1B2A]">Dr. {req.doctorId.slice(0, 8)}</span>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleConsentDecision(req.id, true)}
+                        className="text-[13px] font-normal text-[#0AAFCE] hover:underline"
+                      >
+                        {t("historyRequestApprove")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleConsentDecision(req.id, false)}
+                        className="text-[13px] font-normal text-[#B42318] hover:underline"
+                      >
+                        {t("historyRequestDeny")}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
               <p className="section-label mb-2">{t("title")}</p>
