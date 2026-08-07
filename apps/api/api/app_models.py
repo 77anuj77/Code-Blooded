@@ -50,3 +50,25 @@ class ClinicalCase(SQLModel, table=True):
     submission_id: str | None = Field(default=None, index=True)
     patient_owner_id: str | None = Field(default=None, index=True)
     case_json: str
+
+
+class PatientHistoryConsent(SQLModel, table=True):
+    __tablename__ = "app_patient_history_consent"
+
+    id: str = Field(primary_key=True)
+    patient_owner_id: str = Field(index=True)
+    doctor_id: str = Field(index=True)
+    status: str = Field(index=True)  # "pending" | "approved" | "denied"
+    triggered_by_submission_id: str | None = None
+    requested_at: int
+    decided_at: int | None = None
+
+
+class PatientHistorySummary(SQLModel, table=True):
+    __tablename__ = "app_patient_history_summary"
+
+    id: str = Field(primary_key=True)
+    patient_owner_id: str = Field(index=True, unique=True)
+    summary_markdown: str
+    source_case_ids_json: str
+    generated_at: int
