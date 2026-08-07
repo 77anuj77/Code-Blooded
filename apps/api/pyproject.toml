@@ -19,6 +19,7 @@ dependencies = [
     "python-multipart>=0.0.26",
     "reportlab>=4.4.4",
     "scoring",
+    "psycopg2-binary>=2.9.9",
     "sqlmodel>=0.0.38",
     "uvicorn[standard]>=0.44.0",
     # scispacy: local HPO NER — NOT in core deps (spacy/blis incompatible with Python 3.14)

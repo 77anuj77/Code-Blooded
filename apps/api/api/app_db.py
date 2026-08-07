@@ -24,12 +24,19 @@ UPLOAD_DIR = APP_DATA_DIR / "uploads" / "submissions"
 
 
 def get_app_engine():
+    url = os.environ.get("LUMINA_APP_DATABASE_URL", "") or os.environ.get("DATABASE_URL", "")
+    if url.startswith("postgresql://") or url.startswith("postgres://") or url.startswith("postgresql+"):
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return create_engine(url, echo=False)
     APP_DATA_DIR.mkdir(parents=True, exist_ok=True)
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     return create_engine(f"sqlite:///{APP_DB_PATH}", echo=False)
 
 
 def _ensure_patient_submission_columns(engine) -> None:
+    if engine.dialect.name != "sqlite":
+        return
     missing_columns = {
         "patient_summary_json": "TEXT",
         "released_letter_markdown": "TEXT",

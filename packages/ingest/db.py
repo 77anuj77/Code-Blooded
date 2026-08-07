@@ -26,6 +26,11 @@ DATA_DIR = DB_PATH.parent
 
 
 def get_engine(db_path: Path | None = None):
+    url = os.environ.get("DATABASE_URL", "")
+    if url.startswith("postgresql://") or url.startswith("postgres://") or url.startswith("postgresql+"):
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return create_engine(url, echo=False)
     path = db_path or DB_PATH
     return create_engine(f"sqlite:///{path}", echo=False)
 
