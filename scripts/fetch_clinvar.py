@@ -12,7 +12,9 @@ from pathlib import Path
 from urllib.request import urlretrieve
 
 
-CLINVAR_FTP_BASE = "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited"
+# gene_condition_source_id sits at the clinvar root, not under tab_delimited/,
+# which 404'd.
+CLINVAR_FTP_BASE = "https://ftp.ncbi.nlm.nih.gov/pub/clinvar"
 CLINVAR_GENE_CONDITION_URL = f"{CLINVAR_FTP_BASE}/gene_condition_source_id"
 
 
@@ -21,17 +23,19 @@ def download_file(url: str, dest: Path, description: str) -> bool:
     print(f"Downloading {description} from {url} ...")
     try:
         dest.parent.mkdir(parents=True, exist_ok=True)
-        # ClinVar file is gzipped
-        gz_dest = dest.with_suffix(dest.suffix + ".gz")
-        urlretrieve(url, gz_dest)
-        print(f"  Downloaded to {gz_dest} ({gz_dest.stat().st_size:,} bytes)")
+        urlretrieve(url, dest)
 
-        # Decompress
-        print(f"  Decompressing to {dest} ...")
-        with gzip.open(gz_dest, "rb") as f_in:
+        # The copy at the clinvar root is served uncompressed, but sniff the magic
+        # bytes anyway so a .gz mirror still works.
+        with open(dest, "rb") as f:
+            is_gzip = f.read(2) == b"\x1f\x8b"
+        if is_gzip:
+            print("  Decompressing ...")
+            with gzip.open(dest, "rb") as f_in:
+                payload = f_in.read()
             with open(dest, "wb") as f_out:
-                f_out.write(f_in.read())
-        gz_dest.unlink()  # Remove gzipped file
+                f_out.write(payload)
+
         print(f"  Saved to {dest} ({dest.stat().st_size:,} bytes)")
         return True
     except Exception as e:

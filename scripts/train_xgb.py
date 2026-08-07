@@ -30,14 +30,17 @@ def main() -> None:
         help="Number of augmented samples per disease (default: 50)",
     )
     parser.add_argument(
-        "--db-path",
-        type=Path,
-        default=None,
-        help="Path to orpha.sqlite (default: auto-detect)",
+        "--n-estimators",
+        type=int,
+        default=200,
+        help="Boosting rounds (default: 200). XGBoost builds n_estimators × n_classes "
+        "trees, so with ~4.3k diseases this dominates training time.",
     )
     args = parser.parse_args()
 
-    engine = get_engine(args.db_path)
+    # get_engine() takes no arguments — it reads DATABASE_URL. The old --db-path
+    # flag was a leftover from the SQLite era and raised TypeError on every run.
+    engine = get_engine()
 
     # Quick stats for the summary line
     with Session(engine) as session:
@@ -51,10 +54,12 @@ def main() -> None:
         ).one()
 
     print(f"Training XGBoost on {n_diseases} diseases × {n_hpo} HPO features "
-          f"with {args.n_augment} augmentations per disease …")
+          f"with {args.n_augment} augmentations per disease, "
+          f"{args.n_estimators} boosting rounds "
+          f"({args.n_estimators * n_diseases:,} trees) …")
 
     ranker = XGBoostRanker()
-    ranker.train(engine, n_augment=args.n_augment)
+    ranker.train(engine, n_augment=args.n_augment, n_estimators=args.n_estimators)
 
     print(f"Trained on {n_diseases} diseases, {n_hpo} HPO features. Saved to xgb_model.pkl")
 

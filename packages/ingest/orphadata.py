@@ -142,8 +142,10 @@ def load_product9_prev(session: Session) -> int:
         for prev in disorder.findall(".//Prevalence"):
             pt_el = prev.find("PrevalenceType")
             prev_type = _text(pt_el, "Name") if pt_el is not None else ""
+            # PrevalenceClass wraps a <Name> child like its sibling elements do;
+            # reading .text off the container returned blank for every row.
             prev_class_el = prev.find("PrevalenceClass")
-            prev_class = prev_class_el.text.strip() if prev_class_el is not None and prev_class_el.text else None
+            prev_class = _text(prev_class_el, "Name") if prev_class_el is not None else None
             val_el = prev.find("ValMoy")
             val_moy = float(val_el.text) if val_el is not None and val_el.text else None
             geo_el = prev.find("PrevalenceGeographic")

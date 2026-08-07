@@ -424,8 +424,10 @@ def _derive_prevalence_summary(prevalence: list[PrevalenceItem], lang: str) -> s
     best = sorted(prevalence, key=_prevalence_sort_key)[0]
     suffix = f" ({best.geographic})" if best.geographic else ""
     if best.val_moy is not None and best.val_moy > 0:
+        # Orphanet reports ValMoy as cases per 100 000; a bare number reads as a
+        # raw case count. Matches the notation used by PrevalenceClass.
         return _text(lang, "prevalence_value").format(
-            type=best.prevalence_type, value=f"{best.val_moy:g}", suffix=suffix
+            type=best.prevalence_type, value=f"{best.val_moy:g} / 100 000", suffix=suffix
         )
     if best.prevalence_class:
         return _text(lang, "prevalence_class").format(

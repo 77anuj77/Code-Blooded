@@ -5,11 +5,14 @@ from dotenv import load_dotenv
 from sqlmodel import SQLModel, create_engine
 
 ROOT = Path(__file__).parent.parent.parent
-DATA_DIR = ROOT / "data"
 
 # loaded here rather than in the entry points so that any of them — ingest.run,
 # ingest.hpo, scripts, tests — picks up the root .env without repeating this.
 load_dotenv(ROOT / ".env")
+
+# Where the source datasets live. Set LUMINA_DATA_DIR to keep the large
+# downloads out of the app tree — see ml/README.md.
+DATA_DIR = Path(os.environ.get("LUMINA_DATA_DIR") or ROOT / "data")
 
 def get_engine():
     url = os.environ.get("DATABASE_URL")
