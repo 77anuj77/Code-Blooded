@@ -1,4 +1,4 @@
-import type { CaseData, CaseOutcome, CaseSummary, GeneticEvidence, HPOTerm, PatientContext, PatientSubmission, PatientSummary, RankResult, VisitRecommendation } from "@/types/lumina";
+import type { CaseData, CaseOutcome, CaseSummary, ConsentRequest, GeneticEvidence, HPOTerm, PatientContext, PatientHistoryResponse, PatientSubmission, PatientSummary, RankResult, VisitRecommendation } from "@/types/lumina";
 
 const API = "/api";
 type StoredCaseSummary = CaseSummary & { status: CaseOutcome };
@@ -150,6 +150,26 @@ export async function releaseSubmissionToPatient(input: {
     }),
   });
   return jsonOrThrow<PatientSubmission>(res, "Could not release patient report");
+}
+
+export async function getConsentRequestsRemote(actor: ApiActor): Promise<ConsentRequest[]> {
+  const res = await fetch(`${API}/patients/me/consent-requests`, { headers: actorHeaders(actor), cache: "no-store" });
+  return jsonOrThrow<ConsentRequest[]>(res, "Could not load consent requests");
+}
+
+export async function approveConsentRequestRemote(id: string, actor: ApiActor): Promise<ConsentRequest> {
+  const res = await fetch(`${API}/consent-requests/${id}/approve`, { method: "POST", headers: actorHeaders(actor) });
+  return jsonOrThrow<ConsentRequest>(res, "Could not approve request");
+}
+
+export async function denyConsentRequestRemote(id: string, actor: ApiActor): Promise<ConsentRequest> {
+  const res = await fetch(`${API}/consent-requests/${id}/deny`, { method: "POST", headers: actorHeaders(actor) });
+  return jsonOrThrow<ConsentRequest>(res, "Could not deny request");
+}
+
+export async function getPatientHistoryRemote(patientId: string, actor: ApiActor): Promise<PatientHistoryResponse> {
+  const res = await fetch(`${API}/patients/${patientId}/history`, { headers: actorHeaders(actor), cache: "no-store" });
+  return jsonOrThrow<PatientHistoryResponse>(res, "Could not load patient history");
 }
 
 export async function downloadSubmissionFile(id: string, kind: "photo" | "lab", fileName: string, actor: ApiActor): Promise<File> {
