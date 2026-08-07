@@ -61,6 +61,10 @@ packages/**/build/
 packages/**/*.egg-info/
 scratch/
 
+# test output logs — regenerated per-run, shouldn't be version-controlled
+pytest_output.txt
+apps/api/pytest_output.txt
+
 # package locks inside sub-packages (root pnpm-lock.yaml is authoritative)
 packages/**/uv.lock
 
