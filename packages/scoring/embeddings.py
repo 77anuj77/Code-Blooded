@@ -16,11 +16,15 @@ class HPOEmbedder:
         self._embeddings = None  # numpy array shape (N, dim)
 
     def _load_model(self):
-        try:
-            from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer("all-MiniLM-L6-v2")
-        except ImportError:
-            self._model = None
+        # Deliberately disabled: loading SentenceTransformer("all-MiniLM-L6-v2")
+        # can reach out to Hugging Face Hub if the model isn't already cached
+        # locally, and has no built-in timeout — a slow/unstable network can
+        # hang app startup indefinitely. This app's only external data
+        # dependency should be Supabase, so semantic fuzzy HPO matching is
+        # disabled rather than risking a network call to Hugging Face.
+        # `match()` and `build_index()` already fall back to a no-op / empty
+        # result when self._model is None, so this is a safe, silent no-op.
+        self._model = None
 
     def build_index(self, hpo_vocab: list[tuple[str, str]]) -> None:
         """Pre-compute embeddings for all HPO terms. Call once at startup."""
