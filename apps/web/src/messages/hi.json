@@ -168,6 +168,7 @@
     "apiStatusLoading": "लोड हो रहा है",
     "apiStatusUnavailable": "अनुपलब्ध",
     "forClinics": "क्लीनिक के लिए",
+    "forPatients": "मरीज़ों के लिए",
     "forProviders": "प्रदाताओं के लिए",
     "securityHelp": "सुरक्षा और सहायता",
     "docDashboard": "डॉक्टर डैशबोर्ड",

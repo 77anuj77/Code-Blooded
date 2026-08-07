@@ -168,6 +168,7 @@
     "apiStatusLoading": "読み込み中",
     "apiStatusUnavailable": "利用不可",
     "forClinics": "クリニック向け",
+    "forPatients": "患者様向け",
     "forProviders": "プロバイダー向け",
     "securityHelp": "セキュリティとヘルプ",
     "docDashboard": "ドクターダッシュボード",

@@ -168,6 +168,7 @@
     "apiStatusLoading": "Cargando",
     "apiStatusUnavailable": "No disponible",
     "forClinics": "Para Clínicas",
+    "forPatients": "Para Pacientes",
     "forProviders": "Para Proveedores",
     "securityHelp": "Seguridad y Ayuda",
     "docDashboard": "Panel del Médico",

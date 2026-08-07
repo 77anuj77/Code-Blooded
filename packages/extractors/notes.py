@@ -16,8 +16,13 @@ Use standard Human Phenotype Ontology terms and IDs. Return a JSON array — not
 Each item: {"hpo_id": "HP:XXXXXXX", "confidence": 0.0-1.0, "source": "exact span from text"}
 
 Rules:
+- ONLY report findings the text actually states. Do not infer, elaborate, or add
+  findings that commonly co-occur with the ones described. A missed finding is far
+  less harmful than an invented one, which drags the diagnosis toward the wrong disease.
+- "source" MUST be copied verbatim from the notes. Findings whose source span does not
+  appear in the text are discarded by backend validation.
 - confidence 0.9–0.95 for explicitly stated findings
-- confidence 0.6–0.8 for inferred or ambiguous findings
+- confidence 0.6–0.8 only when the wording is ambiguous but the finding IS present in the text
 - return [] if no findings map to HPO terms
 - do not invent non-existent HPO IDs; backend validation will discard invalid IDs
 
@@ -170,6 +175,25 @@ def _keyword_match(text: str, hpo_vocab: list[tuple[str, str]]) -> list[HPOTerm]
     return list(results.values())
 
 
+def _source_is_grounded(source: str, text: str) -> bool:
+    """True when the model's quoted span really occurs in the notes.
+
+    Compared on collapsed whitespace and casing so ordinary reformatting still
+    passes. An empty span counts as ungrounded: without a quote there is nothing
+    tying the finding to the text.
+    """
+    span = " ".join(source.split()).lower()
+    if not span:
+        return False
+    haystack = " ".join(text.split()).lower()
+    if span in haystack:
+        return True
+    # Allow a lightly trimmed quote (trailing punctuation, an article) to still match.
+    words = [w.strip(".,;:()") for w in span.split()]
+    words = [w for w in words if w]
+    return bool(words) and " ".join(words) in haystack
+
+
 async def _extract_via_groq(text: str, hpo_vocab: list[tuple[str, str]]) -> list[HPOTerm]:
     api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
@@ -200,6 +224,11 @@ async def _extract_via_groq(text: str, hpo_vocab: list[tuple[str, str]]) -> list
                 continue
             hpo_id = item.get("hpo_id", "")
             if not hpo_id.startswith("HP:"):
+                continue
+            if not _source_is_grounded(str(item.get("source", "")), text):
+                # The model returned a finding it cannot point to in the notes.
+                # These read as confident and steer scoring toward the wrong
+                # disease, so drop them rather than let them outvote real terms.
                 continue
             results.append(
                 HPOTerm(

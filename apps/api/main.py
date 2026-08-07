@@ -22,12 +22,50 @@ from api.routes.search import router as search_router  # noqa: E402
 from api.routes.submissions import router as submissions_router  # noqa: E402
 
 
+def _hpo_synonyms() -> dict[str, list[str]]:
+    """hpo_id -> exact synonyms, from the ontology pyhpo ships with.
+
+    Clinicians write "myoclonic jerks", not "Myoclonus". Matching only the
+    primary label misses those, and the miss is expensive: on a realistic note
+    it cost the correct diagnosis two ranks. Synonyms are not stored in the
+    database, so they are read from the ontology at startup.
+    """
+    try:
+        import pyhpo
+
+        try:
+            pyhpo.Ontology()
+        except RuntimeError:
+            pass  # already initialised by another caller
+
+        out: dict[str, list[str]] = {}
+        for term in pyhpo.Ontology:
+            syns = [s.strip() for s in (getattr(term, "synonym", None) or []) if s and s.strip()]
+            if syns:
+                out[term.id] = syns
+        return out
+    except Exception:
+        return {}
+
+
 def _load_hpo_vocab(engine) -> list[tuple[str, str]]:
     with Session(engine) as s:
         terms = s.exec(
             select(HPOTermModel).where(HPOTermModel.ic.isnot(None)).order_by(HPOTermModel.ic.desc())
         ).all()
-    return [(t.hpo_id, t.name) for t in terms]
+
+    synonyms = _hpo_synonyms()
+    vocab: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for t in terms:
+        # primary label first so it wins on ties; the matcher keeps the
+        # highest-confidence hit per hpo_id regardless.
+        for phrase in [t.name, *synonyms.get(t.hpo_id, [])]:
+            key = (t.hpo_id, phrase.lower())
+            if phrase and key not in seen:
+                seen.add(key)
+                vocab.append((t.hpo_id, phrase))
+    return vocab
 
 
 def _load_hpo_definitions(engine) -> dict[str, str | None]:
