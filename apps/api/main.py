@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent / ".env")
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
@@ -68,9 +68,14 @@ async def lifespan(app: FastAPI):
         app.state.scoring_index = ScoringIndex.load()
     except Exception:
         app.state.scoring_index = None
-    app.state.hpo_vocab = _load_hpo_vocab(engine)
-    app.state.hpo_names = _load_hpo_names(engine)
-    app.state.hpo_definitions = _load_hpo_definitions(engine)
+    try:
+        app.state.hpo_vocab = _load_hpo_vocab(engine)
+        app.state.hpo_names = _load_hpo_names(engine)
+        app.state.hpo_definitions = _load_hpo_definitions(engine)
+    except Exception:
+        app.state.hpo_vocab = []
+        app.state.hpo_names = {}
+        app.state.hpo_definitions = {}
     try:
         app.state.facial_vocab = _load_facial_vocab(engine)
     except Exception:

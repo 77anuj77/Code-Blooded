@@ -1,7 +1,13 @@
 """Run all ingest scripts in dependency order."""
 
-from ingest import clinvar, fgdd, hpo, orphadata
-from ingest.db import init_db
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
+
+from ingest import clinvar, fgdd, hpo, orphadata  # noqa: E402
+from ingest.db import init_db  # noqa: E402
 
 
 def main():
@@ -21,7 +27,7 @@ def main():
     fgdd.run()
     print()
 
-    print("All ingest complete. Database written to data/orpha.sqlite")
+    print("All ingest complete. Database written to Supabase (DATABASE_URL).")
 
 
 if __name__ == "__main__":

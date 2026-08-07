@@ -1,0 +1,30 @@
+{
+  "extraPaths": [
+    "apps/api",
+    "packages"
+  ],
+  "executionEnvironments": [
+    {
+      "root": "apps/api"
+    },
+    {
+      "root": "packages/ingest"
+    },
+    {
+      "root": "packages/scoring"
+    },
+    {
+      "root": "packages/extractors"
+    },
+    {
+      "root": "scripts"
+    },
+    {
+      "root": "tests",
+      "extraPaths": [
+        "apps/api",
+        "packages"
+      ]
+    }
+  ]
+}

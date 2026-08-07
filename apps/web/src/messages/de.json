@@ -1084,7 +1084,7 @@
   "common": {
     "loading": "Lädt...",
     "error": "Etwas ist schiefgelaufen",
-    "brandName": "Lumina",
+    "brandName": "Sanjeevni",
     "metaTitle": "Lumina — Diagnose seltener Krankheiten",
     "metaDesc": "Arztgeführte Plattform zur Diagnose seltener Krankheiten. Klinische Notizen, Fotos, Laborberichte und genetische Beweise werden vor der Bewertung überprüft.",
     "toggleTheme": "Thema umschalten",
@@ -1504,3 +1504,4 @@
     "emptyDesc": "Neue Patientennachweise erscheinen hier zur ärztlichen Prüfung."
   }
 }
+

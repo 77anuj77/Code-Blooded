@@ -1,7 +1,7 @@
 """Ingest smoke tests — assert row counts, sample lookups, FK consistency."""
 
 import pytest
-from ingest.db import DB_PATH, get_engine
+from ingest.db import get_engine
 from ingest.models import (
     ClinVarGeneDisease,
     CrossRef,
@@ -18,8 +18,6 @@ from sqlmodel import Session, func, select
 
 @pytest.fixture(scope="module")
 def session():
-    if not DB_PATH.exists():
-        pytest.skip("orpha.sqlite not found — run ingest first")
     engine = get_engine()
     with Session(engine) as s:
         yield s
