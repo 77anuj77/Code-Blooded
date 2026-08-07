@@ -6,9 +6,6 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="module")
 def client():
-    from ingest.db import DB_PATH
-    if not DB_PATH.exists():
-        pytest.skip("orpha.sqlite not found — run ingest first")
     from main import app
     with TestClient(app) as c:
         yield c

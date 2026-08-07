@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent / ".env")
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
@@ -63,11 +63,23 @@ async def lifespan(app: FastAPI):
     from api.app_db import init_app_db
 
     app.state.app_db_engine = init_app_db()
-    app.state.scoring_index = ScoringIndex.load()
-    app.state.hpo_vocab = _load_hpo_vocab(engine)
-    app.state.hpo_names = _load_hpo_names(engine)
-    app.state.hpo_definitions = _load_hpo_definitions(engine)
-    app.state.facial_vocab = _load_facial_vocab(engine)
+
+    try:
+        app.state.scoring_index = ScoringIndex.load()
+    except Exception:
+        app.state.scoring_index = None
+    try:
+        app.state.hpo_vocab = _load_hpo_vocab(engine)
+        app.state.hpo_names = _load_hpo_names(engine)
+        app.state.hpo_definitions = _load_hpo_definitions(engine)
+    except Exception:
+        app.state.hpo_vocab = []
+        app.state.hpo_names = {}
+        app.state.hpo_definitions = {}
+    try:
+        app.state.facial_vocab = _load_facial_vocab(engine)
+    except Exception:
+        app.state.facial_vocab = []
     from scoring.embeddings import _embedder
 
     if not _embedder.load_index():

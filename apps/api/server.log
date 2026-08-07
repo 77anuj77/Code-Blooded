@@ -1,0 +1,20 @@
+INFO:     Started server process [77581]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55859 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61279 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61279 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61314 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61390 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61407 - "GET /intake/text HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:61419 - "GET /intake/lab HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:61434 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61434 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61466 - "POST /agent/patient-summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61496 - "GET /disease/search?page=1&page_size=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61535 - "DELETE /submissions/adfa HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:61683 - "GET /ihealth HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61683 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61699 - "GET /health/ HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:61699 - "GET /health HTTP/1.1" 200 OK
