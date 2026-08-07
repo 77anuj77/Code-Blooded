@@ -45,9 +45,12 @@ select = ["E", "F", "I", "UP"]
 ignore = ["E501"]
 
 [tool.uv.sources]
-ingest = { path = "../../packages/ingest" }
-scoring = { path = "../../packages/scoring" }
-extractors = { path = "../../packages/extractors" }
+# editable so these resolve to packages/ on disk rather than a copy in site-packages:
+# ingest.run locates the root .env relative to its own __file__, which only works
+# from the real source tree. Also means edits to packages/* take effect without a rebuild.
+ingest = { path = "../../packages/ingest", editable = true }
+scoring = { path = "../../packages/scoring", editable = true }
+extractors = { path = "../../packages/extractors", editable = true }
 
 [tool.uv.extra-build-dependencies]
 ingest = ["setuptools>=61.0"]
