@@ -14,7 +14,7 @@ export default function Page() {
   const features = [
     {
       title: t("feat1Title"),
-      description: t("feat1Desc"),
+      description: t("feat1Desc", { brandName }),
       icon: <FileText className="h-6 w-6 text-[#0AAFCE]" />,
     },
     {

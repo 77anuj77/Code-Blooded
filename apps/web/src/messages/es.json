@@ -1084,7 +1084,7 @@
   "common": {
     "loading": "Cargando...",
     "error": "Algo salió mal",
-    "brandName": "lumina",
+    "brandName": "Sanjeevni",
     "metaTitle": "Lumina — Diagnóstico de enfermedades raras",
     "metaDesc": "Plataforma de diagnóstico de enfermedades raras dirigida por médicos. Notas clínicas, fotos, informes de laboratorio y pruebas genéticas revisadas antes de la puntuación.",
     "toggleTheme": "Cambiar tema",
@@ -1495,3 +1495,4 @@
     "emptyDesc": "La nueva evidencia del paciente aparecerá aquí para revisión médica."
   }
 }
+
