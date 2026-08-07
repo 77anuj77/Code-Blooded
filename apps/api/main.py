@@ -80,6 +80,14 @@ async def lifespan(app: FastAPI):
     if not _embedder.load_index():
         pass  # index not built yet; build with scripts/build_hpo_index.py
     app.state.hpo_embedder = _embedder
+
+    try:
+        from scoring.ml_ranker import XGBoostRanker
+
+        app.state.xgb_ranker = XGBoostRanker.load()
+    except Exception:
+        app.state.xgb_ranker = None
+
     yield
 
 
