@@ -14,6 +14,7 @@ import {
   useDoctorLetterProfile,
   type DoctorLetterProfile,
 } from "@/components/lumina/referral-letter-sheet";
+import { PatientHistoryPanel } from "@/components/lumina/patient-history-panel";
 import { Button } from "@/components/ui/button";
 import { localizeHpoLabel, type HpoLabelMessages } from "@/lib/hpo";
 import { formatConfidence, formatNumber } from "@/lib/formatters";
@@ -1060,6 +1061,11 @@ export default function CasePage({ params }: { params: Promise<{ id: string }> }
           )}
         </motion.div>
 
+        {caseData.patientOwnerId && (
+          <div className="mb-8 print:hidden">
+            <PatientHistoryPanel patientId={caseData.patientOwnerId} />
+          </div>
+        )}
 
         {/* Agent suggestion banner */}
         <AnimatePresence>
