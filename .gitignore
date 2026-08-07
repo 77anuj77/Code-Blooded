@@ -1,4 +1,5 @@
 # markdown docs
+.env
 # (All .md files are now tracked by default)
 # EXCEPT local-only private project docs:
 GEMINI.md

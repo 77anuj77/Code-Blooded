@@ -63,11 +63,18 @@ async def lifespan(app: FastAPI):
     from api.app_db import init_app_db
 
     app.state.app_db_engine = init_app_db()
-    app.state.scoring_index = ScoringIndex.load()
+
+    try:
+        app.state.scoring_index = ScoringIndex.load()
+    except Exception:
+        app.state.scoring_index = None
     app.state.hpo_vocab = _load_hpo_vocab(engine)
     app.state.hpo_names = _load_hpo_names(engine)
     app.state.hpo_definitions = _load_hpo_definitions(engine)
-    app.state.facial_vocab = _load_facial_vocab(engine)
+    try:
+        app.state.facial_vocab = _load_facial_vocab(engine)
+    except Exception:
+        app.state.facial_vocab = []
     from scoring.embeddings import _embedder
 
     if not _embedder.load_index():
