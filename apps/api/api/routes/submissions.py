@@ -10,7 +10,12 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from api.app_db import UPLOAD_DIR
-from api.app_models import ClinicalCase, DoctorRequestMessage, PatientSubmission
+from api.app_models import (
+    ClinicalCase,
+    DoctorRequestMessage,
+    PatientHistoryConsent,
+    PatientSubmission,
+)
 
 router = APIRouter(tags=["submissions"])
 
@@ -80,6 +85,8 @@ def _case_payload(row: ClinicalCase) -> dict:
     payload["id"] = row.id
     if row.submission_id:
         payload["sourceSubmissionId"] = row.submission_id
+    if row.patient_owner_id:
+        payload["patientOwnerId"] = row.patient_owner_id
     return payload
 
 
@@ -201,6 +208,40 @@ async def get_submission_file(submission_id: str, kind: str, request: Request):
         return FileResponse(path, media_type=content_type, filename=name)
 
 
+def _maybe_request_history_consent(
+    session: Session, patient_owner_id: str, doctor_id: str, submission_id: str
+) -> None:
+    has_other_doctor_case = session.exec(
+        select(ClinicalCase.id)
+        .join(
+            PatientSubmission,
+            PatientSubmission.id == ClinicalCase.submission_id,
+        )
+        .where(ClinicalCase.patient_owner_id == patient_owner_id)
+        .where(ClinicalCase.doctor_owner_id != doctor_id)
+        .where(PatientSubmission.status.in_(["doctor_completed", "released_to_patient"]))
+    ).first()
+    if has_other_doctor_case is None:
+        return
+    existing = session.exec(
+        select(PatientHistoryConsent)
+        .where(PatientHistoryConsent.patient_owner_id == patient_owner_id)
+        .where(PatientHistoryConsent.doctor_id == doctor_id)
+    ).first()
+    if existing is not None:
+        return
+    session.add(
+        PatientHistoryConsent(
+            id=str(uuid4()),
+            patient_owner_id=patient_owner_id,
+            doctor_id=doctor_id,
+            status="pending",
+            triggered_by_submission_id=submission_id,
+            requested_at=_now_ms(),
+        )
+    )
+
+
 @router.post("/submissions/{submission_id}/start-review")
 async def start_review(submission_id: str, request: Request):
     user_id, role = _actor(request)
@@ -214,6 +255,7 @@ async def start_review(submission_id: str, request: Request):
         row.doctor_reviewer_id = user_id
         row.updated_at = _now_ms()
         session.add(row)
+        _maybe_request_history_consent(session, row.patient_owner_id, user_id, submission_id)
         session.commit()
         session.refresh(row)
         return _submission_payload(row)
