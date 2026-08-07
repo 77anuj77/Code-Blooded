@@ -58,6 +58,7 @@ export interface CaseData {
   id: string;
   timestamp: number;
   sourceSubmissionId?: string;
+  patientOwnerId?: string;
   notes?: string;
   referralLetterDraft?: string;
   inputHistory?: InputSnapshot[];
@@ -146,4 +147,26 @@ export interface PatientSubmission {
   releaseTimestamp?: number | null;
   visitRecommendation?: VisitRecommendation | null;
   messages?: Array<{ id: string; doctorId: string; message: string; timestamp: number }>;
+}
+
+export interface ConsentRequest {
+  id: string;
+  doctorId: string;
+  status: "pending" | "approved" | "denied";
+  requestedAt: number;
+  decidedAt?: number | null;
+  submissionId?: string | null;
+}
+
+export interface PatientHistoryTimelineEntry {
+  caseId: string;
+  doctorId: string;
+  date: number;
+  topDiagnosis: string;
+  visitRecommendation?: string | null;
+}
+
+export interface PatientHistoryResponse {
+  summary: string;
+  timeline: PatientHistoryTimelineEntry[];
 }

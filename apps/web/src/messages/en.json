@@ -33,7 +33,20 @@
     "deleteConfirm": "Delete this submission and its linked referral data?",
     "deleteSuccess": "Submission deleted.",
     "deleteFailed": "Could not delete submission.",
-    "loadFailed": "Could not load submissions."
+    "loadFailed": "Could not load submissions.",
+    "historyRequestsTitle": "History sharing requests",
+    "historyRequestsDesc": "A doctor is requesting access to your prior diagnosis history so you don't have to re-explain it.",
+    "historyRequestApprove": "Approve",
+    "historyRequestDeny": "Deny",
+    "historyRequestApproved": "Access approved",
+    "historyRequestDenied": "Access denied"
+  },
+  "patientHistory": {
+    "title": "Patient history",
+    "pending": "Waiting on patient approval to view prior history.",
+    "empty": "No prior doctor-completed history for this patient.",
+    "timelineTitle": "Prior cases",
+    "loadFailed": "Could not load patient history."
   },
   "patientNewSubmission": {
     "title": "Patient submission",

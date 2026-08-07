@@ -33,7 +33,20 @@
     "deleteConfirm": "Supprimer cette soumission et les données de référence liées ?",
     "deleteSuccess": "Soumission supprimée.",
     "deleteFailed": "Impossible de supprimer la soumission.",
-    "loadFailed": "Impossible de charger les soumissions."
+    "loadFailed": "Impossible de charger les soumissions.",
+    "historyRequestsTitle": "History sharing requests",
+    "historyRequestsDesc": "A doctor is requesting access to your prior diagnosis history so you don't have to re-explain it.",
+    "historyRequestApprove": "Approve",
+    "historyRequestDeny": "Deny",
+    "historyRequestApproved": "Access approved",
+    "historyRequestDenied": "Access denied"
+  },
+  "patientHistory": {
+    "title": "Patient history",
+    "pending": "Waiting on patient approval to view prior history.",
+    "empty": "No prior doctor-completed history for this patient.",
+    "timelineTitle": "Prior cases",
+    "loadFailed": "Could not load patient history."
   },
   "patientNewSubmission": {
     "title": "Soumission du patient",

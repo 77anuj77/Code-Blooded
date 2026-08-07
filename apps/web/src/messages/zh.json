@@ -33,7 +33,20 @@
     "deleteConfirm": "删除此提交及其关联的转诊数据？",
     "deleteSuccess": "提交已删除。",
     "deleteFailed": "无法删除提交。",
-    "loadFailed": "无法加载提交。"
+    "loadFailed": "无法加载提交。",
+    "historyRequestsTitle": "History sharing requests",
+    "historyRequestsDesc": "A doctor is requesting access to your prior diagnosis history so you don't have to re-explain it.",
+    "historyRequestApprove": "Approve",
+    "historyRequestDeny": "Deny",
+    "historyRequestApproved": "Access approved",
+    "historyRequestDenied": "Access denied"
+  },
+  "patientHistory": {
+    "title": "Patient history",
+    "pending": "Waiting on patient approval to view prior history.",
+    "empty": "No prior doctor-completed history for this patient.",
+    "timelineTitle": "Prior cases",
+    "loadFailed": "Could not load patient history."
   },
   "patientNewSubmission": {
     "title": "患者提交",
