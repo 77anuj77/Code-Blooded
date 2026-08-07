@@ -1,4 +1,6 @@
-"""Load HPO ontology (hp.obo + phenotype.hpoa) into orpha.sqlite."""
+"""Load HPO ontology (hp.obo + phenotype.hpoa) into the configured database."""
+
+from pathlib import Path
 
 import pyhpo
 from sqlmodel import Session, delete
@@ -6,7 +8,22 @@ from sqlmodel import Session, delete
 from ingest.db import DATA_DIR, init_db
 from ingest.models import HPOAncestor, HPOTerm
 
-HPO_DIR = str(DATA_DIR / "hpo")
+HPO_DIR = DATA_DIR / "hpo"
+
+
+def _load_ontology() -> None:
+    """Prefer a local hp.obo/phenotype.hpoa drop, else pyhpo's bundled ontology.
+
+    The bundled copy carries the full term set but no Orpha annotations, so
+    information content comes back empty — fine for term extraction, but
+    IC-weighted scoring needs the local files.
+    """
+    if Path(HPO_DIR).is_dir():
+        pyhpo.Ontology(str(HPO_DIR))
+        print(f"  source: {HPO_DIR}")
+    else:
+        pyhpo.Ontology()
+        print("  source: pyhpo bundled ontology (no data/hpo present)")
 
 
 def load_hpo(session: Session) -> int:
@@ -14,7 +31,7 @@ def load_hpo(session: Session) -> int:
     session.exec(delete(HPOTerm))
     session.commit()
 
-    pyhpo.Ontology(HPO_DIR)
+    _load_ontology()
 
     terms, ancestors = [], []
     for term in pyhpo.Ontology:

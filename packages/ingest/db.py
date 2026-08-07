@@ -1,9 +1,15 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlmodel import SQLModel, create_engine
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
+ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = ROOT / "data"
+
+# loaded here rather than in the entry points so that any of them — ingest.run,
+# ingest.hpo, scripts, tests — picks up the root .env without repeating this.
+load_dotenv(ROOT / ".env")
 
 def get_engine():
     url = os.environ.get("DATABASE_URL")
