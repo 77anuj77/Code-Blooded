@@ -155,6 +155,9 @@ class ScoringIndex:
                 hpo_id, confidence = item
                 source = ""
                 assertion: Literal["present", "absent"] = "absent" if confidence < 0 else "present"
+                # assigned on both branches: it was set only in the else below, so any
+                # caller passing plain (hpo_id, confidence) tuples raised UnboundLocalError.
+                review_status = None
             else:
                 hpo_id = getattr(item, "hpo_id", "")
                 confidence = float(getattr(item, "confidence", 0.0))

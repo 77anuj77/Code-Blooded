@@ -168,6 +168,7 @@
     "apiStatusLoading": "Chargement",
     "apiStatusUnavailable": "Indisponible",
     "forClinics": "Pour les cliniques",
+    "forPatients": "Pour les patients",
     "forProviders": "Pour les prestataires",
     "securityHelp": "Sécurité et aide",
     "docDashboard": "Tableau de bord médecin",

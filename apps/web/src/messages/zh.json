@@ -168,6 +168,7 @@
     "apiStatusLoading": "加载中",
     "apiStatusUnavailable": "不可用",
     "forClinics": "诊所专用",
+    "forPatients": "患者专区",
     "forProviders": "提供商专用",
     "securityHelp": "安全与帮助",
     "docDashboard": "医生仪表板",

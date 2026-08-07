@@ -17,9 +17,13 @@ from urllib.request import urlretrieve
 
 HPO_BASE_URL = "https://purl.obolibrary.org/obo/hp"
 HPO_OBO_URL = f"{HPO_BASE_URL}.obo"
-HPO_HPOA_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2024-03-01/phenotype.hpoa"
-HPO_GENES_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2024-03-01/genes_to_phenotype.txt"
-HPO_GENES_TRANSITIVE_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2024-03-01/phenotype_to_genes.txt"
+
+# 'latest' rather than a pinned tag: the previously hardcoded v2024-03-01 release
+# was removed upstream and every one of these 404'd.
+HPO_RELEASE_BASE = "https://github.com/obophenotype/human-phenotype-ontology/releases/latest/download"
+HPO_HPOA_URL = f"{HPO_RELEASE_BASE}/phenotype.hpoa"
+HPO_GENES_URL = f"{HPO_RELEASE_BASE}/genes_to_phenotype.txt"
+HPO_GENES_TRANSITIVE_URL = f"{HPO_RELEASE_BASE}/phenotype_to_genes.txt"
 
 
 def download_file(url: str, dest: Path, description: str) -> bool:

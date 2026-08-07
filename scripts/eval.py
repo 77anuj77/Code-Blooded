@@ -51,7 +51,8 @@ except ImportError as exc:
 DEMO_CASES: list[dict] = [
     {
         "name": "Dravet syndrome",
-        "orpha_code": 34587,
+        # 34587 is Danon disease; Dravet is ORPHA:33069.
+        "orpha_code": 33069,
         "hpo_terms": [
             ("HP:0002373", 0.95),
             ("HP:0001250", 0.92),

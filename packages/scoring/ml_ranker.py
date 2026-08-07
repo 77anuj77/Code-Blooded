@@ -14,6 +14,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+from scipy import sparse
 from sqlmodel import Session, select
 from xgboost import XGBClassifier
 
@@ -36,7 +37,7 @@ class XGBoostRanker:
         self._label_to_orpha: dict[int, int] = {}
         self._orpha_to_label: dict[int, int] = {}
 
-    def train(self, engine, n_augment: int = 50) -> None:
+    def train(self, engine, n_augment: int = 50, n_estimators: int = 200) -> None:
         """Build training data from DB, train XGBoost multi-class, save to disk.
 
         Args:
@@ -77,20 +78,27 @@ class XGBoostRanker:
 
         rng = np.random.default_rng(42)
 
-        X_rows: list[list[float]] = []
+        # Built as CSR rather than dense: each disease carries ~27 of the 8,728
+        # features, so the dense matrix is ~0.3% non-zero. Materialising it cost
+        # ~15 GB as float32 — and far more via .tolist(), whose Python floats
+        # are what actually exhausted memory.
+        data: list[float] = []
+        indices: list[int] = []
+        indptr: list[int] = [0]
         y_labels: list[int] = []
 
         for orpha_code, pheno_map in disease_pheno.items():
             label = self._orpha_to_label[orpha_code]
-            base_row = np.zeros(n_hpo, dtype=np.float32)
-            for hpo_id, weight in pheno_map.items():
-                base_row[hpo_index[hpo_id]] = weight
-
-            hpo_ids_for_disease = list(pheno_map.keys())
-            n_phenos = len(hpo_ids_for_disease)
+            cols = np.fromiter(
+                (hpo_index[h] for h in pheno_map), dtype=np.int32, count=len(pheno_map)
+            )
+            vals = np.fromiter(pheno_map.values(), dtype=np.float32, count=len(pheno_map))
+            n_phenos = cols.size
 
             # Add the canonical profile
-            X_rows.append(base_row.tolist())
+            indices.extend(cols.tolist())
+            data.extend(vals.tolist())
+            indptr.append(len(indices))
             y_labels.append(label)
 
             # Add augmented samples by subsampling HPOs
@@ -100,15 +108,20 @@ class XGBoostRanker:
                 if not keep_mask.any():
                     keep_mask[rng.integers(n_phenos)] = True
 
-                aug_row = np.zeros(n_hpo, dtype=np.float32)
-                for i, hpo_id in enumerate(hpo_ids_for_disease):
-                    if keep_mask[i]:
-                        aug_row[hpo_index[hpo_id]] = pheno_map[hpo_id]
-                X_rows.append(aug_row.tolist())
+                indices.extend(cols[keep_mask].tolist())
+                data.extend(vals[keep_mask].tolist())
+                indptr.append(len(indices))
                 y_labels.append(label)
 
-        X = np.array(X_rows, dtype=np.float32)
         y = np.array(y_labels, dtype=np.int32)
+        X = sparse.csr_matrix(
+            (
+                np.asarray(data, dtype=np.float32),
+                np.asarray(indices, dtype=np.int32),
+                np.asarray(indptr, dtype=np.int64),
+            ),
+            shape=(y.size, n_hpo),
+        )
 
         logger.info(
             "Training XGBoost multi-class on %d samples, %d classes",
@@ -116,7 +129,7 @@ class XGBoostRanker:
         )
 
         self._model = XGBClassifier(
-            n_estimators=200,
+            n_estimators=n_estimators,
             max_depth=8,
             learning_rate=0.1,
             subsample=0.8,

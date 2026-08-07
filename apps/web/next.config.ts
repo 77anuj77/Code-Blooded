@@ -34,7 +34,10 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || '',
   },
   async rewrites() {
-    const apiUrl = process.env.API_URL ?? "http://localhost:8000";
+    // Single source of truth for the API target. vercel.json used to define a
+    // competing rewrite to a hardcoded host that no longer resolves; set API_URL
+    // in the deployment environment instead.
+    const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
     return [{ source: "/api/:path*", destination: `${apiUrl}/:path*` }];
   },
 };

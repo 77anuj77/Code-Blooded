@@ -168,6 +168,7 @@
     "apiStatusLoading": "Lädt",
     "apiStatusUnavailable": "Nicht verfügbar",
     "forClinics": "Für Kliniken",
+    "forPatients": "Für Patienten",
     "forProviders": "Für Anbieter",
     "securityHelp": "Sicherheit & Hilfe",
     "docDashboard": "Arzt-Dashboard",
